@@ -7,8 +7,8 @@
 사용자의 장보기 흐름을 홈에서 결제·주문 조회까지 한 앱 안에서 끝내는 모바일 우선 PWA입니다.
 
 - **카카오·네이버 소셜 로그인**으로 시작
-- **홈 · 검색 · 상품 · 장바구니 · 주문서 · 마이페이지**로 쇼핑 흐름을 구성
-- **주문, 배송지, 취소·반품·교환, My냉장고·레시피**를 마이페이지에서 이어서 관리
+- **홈**(히어로 배너·추천 구좌) **· 검색 · 상품 · 장바구니 · 주문서 · 마이페이지**로 쇼핑 흐름을 구성
+- **주문, 배송지, 취소·반품·교환, My냉장고·레시피**(AI 추천)를 마이페이지에서 이어서 관리
 - **토스페이먼츠**로 결제수단 선택부터 승인까지 연결
 - **PWA**로 앱에 가까운 실행과 기본 오프라인 셸을 제공
 
@@ -23,11 +23,12 @@
 | 3-1         | 인증 401 재시도 루프 차단 — in-flight 프로미스로 동시 재발급 합치기 | [#123](https://github.com/5issue/total-client/pull/123)                 |
 | 3-2         | Pretendard 자체 호스팅 → TTF에서 WOFF2로 전환 (6.7MB → 2.06MB)  | [#122](https://github.com/5issue/total-client/pull/122), [#168](https://github.com/5issue/total-client/pull/168) |
 | 3-3         | Critical CSS 인라인 — 렌더링 차단 450ms → 0ms                   | [#168](https://github.com/5issue/total-client/pull/168)                 |
+| 3-4         | 초기 JS 실행 축소 — 시트 지연 마운트·결제 SDK 라우트 분리·외부 스크립트 지연 | [#194](https://github.com/5issue/total-client/pull/194), [#123](https://github.com/5issue/total-client/pull/123), [#73](https://github.com/5issue/total-client/pull/73) |
 | 3-5         | 히어로 배너 LCP `fetchPriority` 명시 + `preload` 복귀           | [#165](https://github.com/5issue/total-client/pull/165), [#188](https://github.com/5issue/total-client/pull/188) |
-| 3-7         | 상품 이미지 CDN 도메인 `next/image` 화이트리스트 등록           | [#157](https://github.com/5issue/total-client/pull/157)                 |
-| 3-8         | Lighthouse 측정 방법론 검증 — Lantern 시뮬레이션 아티팩트 규명  | 측정·분석                      |
+| 3-6         | 상품 이미지 CDN 도메인 `next/image` 화이트리스트 등록           | [#157](https://github.com/5issue/total-client/pull/157)                 |
+| 3-7         | Lighthouse 측정 방법론 검증 — Lantern 시뮬레이션 아티팩트 규명  | 측정·분석                      |
 
-나머지 두 섹션은 공동 작업이라 구분해 둡니다. **3-4**(RSC 경계)는 홈 화면의 클라이언트 경계 분리가 선행 작업이고, 그 위에 바텀시트 지연 마운트·장바구니 담기 연결([#145](https://github.com/5issue/total-client/pull/145), [#194](https://github.com/5issue/total-client/pull/194))과 토스 SDK 라우트 분리([#123](https://github.com/5issue/total-client/pull/123))를 올렸습니다. **3-6**(종횡비 토큰)은 퍼블리싱 단계에서 들어온 구조를 그대로 활용했습니다.
+3-4의 전제가 되는 "페이지 셸은 서버 컴포넌트, 상태 구획만 클라이언트 경계"라는 구조 자체는 홈 화면 API 연동(선행 작업)에서 잡힌 것이라 제 작업으로 세지 않았습니다.
 
 ## 기술 스택
 
@@ -47,25 +48,6 @@
 | Quality       | <img src="https://img.shields.io/badge/ESLint-4B32C3?style=for-the-badge&logo=eslint&logoColor=white"> <img src="https://img.shields.io/badge/Prettier-F7B93E?style=for-the-badge&logo=prettier&logoColor=black">                                                                                                                  | 커밋 전 스타일·린트 통일                                                      |
 | Delivery      | <img src="https://img.shields.io/badge/Docker-2496ED?style=for-the-badge&logo=docker&logoColor=white"> <img src="https://img.shields.io/badge/Kubernetes-326CE5?style=for-the-badge&logo=kubernetes&logoColor=white">                                                                                                              | `output: "standalone"` 이미지와 k8s 매니페스트 예시                           |
 | Collaboration | <img src="https://img.shields.io/badge/GitHub-181717?style=for-the-badge&logo=github&logoColor=white"> <img src="https://img.shields.io/badge/Figma-F24E1E?style=for-the-badge&logo=figma&logoColor=white">                                                                                                                        | 브랜치 `develop`, Conventional Commits, Figma 토큰은 CSS에 수동 반영          |
-
-## 사용자 흐름
-
-- 스플래시·홈 진입
-- 카카오 또는 네이버 로그인
-- 상품 검색·목록·상세
-- 장바구니 담기
-- 주문서 작성 후 토스 결제
-- 주문 완료·영수증
-- 마이페이지에서 주문, 배송지, 취소·반품·교환, My냉장고·레시피 확인
-
-### 주요 화면
-
-- **Home** — 히어로 배너, 추천 구좌
-- **Search / Products** — 검색, 필터, 상품 목록·상세
-- **Cart / Checkout** — 장바구니, 주문서, 배송 상세, 결제 성공·실패·완료
-- **My Page** — 프로필, 주문 내역, 배송지, 취소·반품·교환
-- **Fridge / Recipe** — 냉장고 채우기, 레시피 추천·최근·찜
-- **Login** — 소셜 로그인. 콜백은 `/callback/[provider]`
 
 ## 핵심 설계
 
@@ -102,7 +84,7 @@ Figma 변수를 Style Dictionary로 빌드하지 않습니다. `src/styles/token
 
 두 가지를 특히 신경 썼습니다.
 
-- **측정 도구 자체를 의심했습니다.** 개선 후에도 LCP가 14~30초로 요동쳐, Lighthouse 기본 모드(Lantern 시뮬레이션)가 만들어낸 수치 아티팩트임을 `2,057,688B ÷ 184.3KB/s ≈ 10.9초` 산술로 증명하고 측정 방식을 바꿨습니다 → **3-8**
+- **측정 도구 자체를 의심했습니다.** 개선 후에도 LCP가 14~30초로 요동쳐, Lighthouse 기본 모드(Lantern 시뮬레이션)가 만들어낸 수치 아티팩트임을 `2,057,688B ÷ 184.3KB/s ≈ 10.9초` 산술로 증명하고 측정 방식을 바꿨습니다 → **3-7**
 - **성과로 세지 않은 항목을 남겼습니다.** Before/After JSON 대조에서 변화가 확인되지 않은 2건은 개선 목록에서 제외했습니다 → **끝내지 못한 것**
 
 ### 최적화 4단계 흐름
@@ -192,7 +174,7 @@ function tryRefresh(): Promise<boolean> {
 }
 ```
 
-> **LCP 41.7초 → 4.2초.** 단, 이 수치는 "41.7초짜리 타임아웃이 사라지고 정상 범위로 돌아왔다"는 방향성으로 읽는 것이 정확합니다 — 두 값 모두 시뮬레이션 모드 측정치이고, 그 신뢰도는 3-8에서 따로 검증했습니다.
+> **LCP 41.7초 → 4.2초.** 단, 이 수치는 "41.7초짜리 타임아웃이 사라지고 정상 범위로 돌아왔다"는 방향성으로 읽는 것이 정확합니다 — 두 값 모두 시뮬레이션 모드 측정치이고, 그 신뢰도는 3-7에서 따로 검증했습니다.
 
 #### 3-2. 폰트 TTF → WOFF2 → `src/lib/fonts.ts`
 
@@ -229,31 +211,13 @@ Tailwind 같은 atomic CSS는 페이지가 커져도 **실제로 쓰는 클래�
 
 > **렌더링 차단 450ms → 0ms (차단 리소스 0개, score 0 → 1).** Before/After가 가장 깔끔하게 떨어지는 항목입니다.
 
-#### 3-4. 초기 JavaScript 실행 최적화 → RSC 경계 설계
+#### 3-4. 초기 JavaScript 실행 최적화 → 클라이언트 경계 관리
 
-마켓컬리의 TBT 650ms는 "초기 번들·서드파티 스크립트가 메인 스레드를 장시간 점유"한 결과입니다. 같은 항목에서 **60ms**가 나온 건 번들러를 튜닝해서가 아니라, **첫 화면에 실어 보내는 클라이언트 코드의 양 자체를 구조로 제한**했기 때문입니다.
+마켓컬리의 TBT 650ms는 "초기 번들·서드파티 스크립트가 메인 스레드를 장시간 점유"한 결과입니다. 같은 항목에서 **60ms**가 나온 건 번들러를 튜닝해서가 아니라, **첫 화면에 실어 보내는 클라이언트 코드의 양을 경계 단위로 제한**했기 때문입니다.
 
-**① 페이지 셸은 서버 컴포넌트로 남긴다**
+페이지 셸을 서버 컴포넌트로 두고 상태가 필요한 구획만 클라이언트 경계로 분리하는 구조는 홈 화면 API 연동(선행 작업)에서 잡혔고, 그 위에 아래 세 가지를 올렸습니다.
 
-`.agents/structure-convention`의 렌더링 기본값이 "정적(prerender), `use client`는 상호작용·브라우저 API·상태가 필요한 잎 컴포넌트에만"입니다. 홈이 그 원칙을 그대로 따릅니다.
-
-```tsx
-// src/app/(shop)/(chrome)/page.tsx — 'use client' 없음, 서버 컴포넌트
-export default function HomePage() {
-  return (
-    <div className="flex flex-col">
-      <HomeHeaderContainer />
-      <CategoryTabs />
-      <HeroBanner banners={[/* ... */]} />
-      <HomeProductSections /> {/* 시트 열림 상태를 소유하는 유일한 클라이언트 경계 */}
-    </div>
-  );
-}
-```
-
-퀵메뉴·진열 섹션·"담기" 바텀시트를 `HomeProductSections` 하나에 몰아넣어, 이 경계 바깥은 전부 서버에서 HTML로 끝납니다. 같은 패턴을 `ShopShell`·`SwipeTabShell`에도 적용했습니다.
-
-**② 바텀시트는 데이터가 올 때까지 마운트하지 않는다**
+**① 바텀시트는 데이터가 올 때까지 마운트하지 않는다** ([#194](https://github.com/5issue/total-client/pull/194))
 
 시트는 조건부 렌더이고, 시트가 쓸 상세 쿼리도 카드를 누르기 전까지 비활성입니다.
 
@@ -268,11 +232,11 @@ const detailQuery = useProductDetail(activeProductId ?? '', activeProductId !== 
 
 첫 렌더에서는 시트 트리가 아예 존재하지 않아 하이드레이션 대상에서도 빠집니다.
 
-**③ 결제 SDK는 결제 라우트에서만 로드한다**
+**② 결제 SDK는 결제 라우트에서만 로드한다** ([#123](https://github.com/5issue/total-client/pull/123))
 
 토스 SDK(`@tosspayments/tosspayments-sdk`)를 import하는 파일은 `src/lib/checkout/requestTossPayment.ts` 하나뿐이고, 이를 쓰는 컴포넌트도 `CheckoutView` 하나입니다. 라우트 단위로 쪼개지므로 홈 번들에 들어가지 않고, 실제 SDK는 결제 시점에 `await loadTossPayments(clientKey)`로 받아옵니다.
 
-**④ 외부 스크립트는 첫 페인트 이후, 서비스 워커는 프로덕션만**
+**③ 외부 스크립트는 첫 페인트 이후, 서비스 워커는 프로덕션만** ([#73](https://github.com/5issue/total-client/pull/73))
 
 우편번호 검색 SDK는 `next/script`의 `strategy="afterInteractive"`로 첫 페인트 이후에 붙입니다(`PostcodeSearch.tsx`). Serwist 서비스 워커는 `disable={process.env.NODE_ENV !== 'production'}`로 개발 모드에서는 등록조차 하지 않습니다.
 
@@ -302,23 +266,7 @@ const detailQuery = useProductDetail(activeProductId ?? '', activeProductId !== 
 
 > **`fetchpriority=high` 적용, `priorityHinted: false` 해소.** 공식 문서와 `next/image` 소스를 직접 확인해 이전 PR의 잘못된 전제를 되돌린 건이기도 합니다.
 
-#### 3-6. CLS 0 — 종횡비 토큰 선고정 → `src/styles/globals.css`
-
-마켓컬리도 랩 측정에서는 CLS 0.004로 낮게 나옵니다. 다만 그건 "구좌마다 크기가 보장돼 있다"는 뜻이 아니라 측정 시점에 흔들림이 덜 잡힌 쪽에 가깝습니다 — 1단계에서 배너·상품 카드가 크기 미지정이라는 점은 그대로 확인됐습니다. 접근 방식은 "나중에 고치기"가 아니라 **디자인 토큰으로 강제**해 측정 조건과 무관하게 0을 보장하는 것입니다.
-
-```css
-/* src/styles/globals.css — Figma 실측 종횡비를 토큰으로 선언 */
---aspect-hero-banner: 402 / 298; /* 히어로 배너 (node 577:20652) */
---aspect-product-card: 150 / 240;
---aspect-product-card-compact: 120 / 160;
---aspect-product-description-hero: 369 / 245;
-```
-
-이미지가 들어가는 모든 자리는 로드 전에 `aspect-*` 유틸리티로 공간을 먼저 잡습니다. 리스트 썸네일도 같은 규칙입니다 — `CartLineItem`·`OrderLineItem`·`OrderProductItem`의 63×84 썸네일은 `h-21` + `aspect-3/4`로 고정되어 있어, 이미지 도착 전후로 행 높이가 변하지 않습니다.
-
-> **CLS 0.** 기준선 0.004 대비 수치 폭은 작지만, 흔들릴 수 있는 구좌 자체를 남기지 않았다는 점이 차이입니다.
-
-#### 3-7. 이미지 포맷·호스트 정책 → `next.config.ts`, `src/lib/imageHosts.ts`
+#### 3-6. 이미지 포맷·호스트 정책 → `next.config.ts`, `src/lib/imageHosts.ts`
 
 ```ts
 images: {
@@ -332,7 +280,7 @@ images: {
 
 > **원본 PNG → AVIF·WebP 협상.** 기준선이 2.4MB PNG를 그대로 내려주던 지점이고, 호스트 화이트리스트를 한 곳으로 모아 빌드·런타임이 어긋날 여지를 없앴습니다.
 
-#### 3-8. 측정 방식 자체의 검증 — "LCP 14초"의 정체
+#### 3-7. 측정 방식 자체의 검증 — "LCP 14초"의 정체
 
 개선 후에도 LCP가 로컬 14.3초, 배포 17.6초로 나와 원인을 추적했는데, **코드 문제가 아니라 Lighthouse 기본 모드(Lantern 시뮬레이션)의 산출물**이었습니다. 같은 리포트 안에서 숫자가 두 갈래로 갈립니다.
 
@@ -364,7 +312,7 @@ today-deal.webp (LCP 이미지)   20,069 B   priority: High   isLinkPreload: tru
 
 #### 2차 측정 결과 정리
 
-3-1 ~ 3-7의 개선을 모두 반영한 뒤 다시 측정한 결과입니다.
+3-1 ~ 3-6의 개선을 모두 반영한 뒤 다시 측정한 결과입니다.
 
 <img width="1281" height="602" alt="스크린샷 2026-10-08 오전 4 36 18" src="https://github.com/user-attachments/assets/83d0cf49-e21e-4e2a-be7e-987155273e9a" />
 
