@@ -379,8 +379,8 @@ today-deal.webp (LCP 이미지)   20,069 B   priority: High   isLinkPreload: tru
 홈은 로그인 가드가 걸려 있어 그냥 돌리면 `/login`이 측정됩니다. 미들웨어가 `refresh_token` 쿠키의 유효성이 아니라 **존재 여부만** 확인하므로, 더미 쿠키로 통과시킨 뒤 측정합니다.
 
 ```bash
+# form-factor·화면 에뮬레이션은 모바일이 CLI 기본값 (Mobile · Slow 4G · 4x CPU throttling)
 lighthouse https://<host>/ \
-  --preset=desktop --form-factor=mobile \
   --throttling-method=devtools \
   --extra-headers='{"Cookie":"refresh_token=dummy"}' \
   --output=json --output-path=./lighthouse.json
