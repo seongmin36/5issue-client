@@ -23,7 +23,7 @@
 | 3-1         | 인증 401 재시도 루프 차단 — in-flight 프로미스로 동시 재발급 합치기 | [#123](https://github.com/5issue/total-client/pull/123)                 |
 | 3-2         | Pretendard 자체 호스팅 → TTF에서 WOFF2로 전환 (6.7MB → 2.06MB)  | [#122](https://github.com/5issue/total-client/pull/122), [#168](https://github.com/5issue/total-client/pull/168) |
 | 3-3         | Critical CSS 인라인 — 렌더링 차단 450ms → 0ms                   | [#168](https://github.com/5issue/total-client/pull/168)                 |
-| 3-4         | 초기 JS 실행 축소 — 시트 지연 마운트·결제 SDK 라우트 분리·외부 스크립트 지연 | [#194](https://github.com/5issue/total-client/pull/194), [#123](https://github.com/5issue/total-client/pull/123), [#73](https://github.com/5issue/total-client/pull/73) |
+| 3-4         | 외부 SDK 라우트 분리·지연 로드, 시트 지연 마운트               | [#123](https://github.com/5issue/total-client/pull/123), [#73](https://github.com/5issue/total-client/pull/73), [#194](https://github.com/5issue/total-client/pull/194) |
 | 3-5         | 히어로 배너 LCP `fetchPriority` 명시 + `preload` 복귀           | [#165](https://github.com/5issue/total-client/pull/165), [#188](https://github.com/5issue/total-client/pull/188) |
 | 3-6         | 상품 이미지 CDN 도메인 `next/image` 화이트리스트 등록           | [#157](https://github.com/5issue/total-client/pull/157)                 |
 | 3-7         | Lighthouse 측정 방법론 검증 — Lantern 시뮬레이션 아티팩트 규명  | 측정·분석                      |
@@ -211,36 +211,15 @@ Tailwind 같은 atomic CSS는 페이지가 커져도 **실제로 쓰는 클래�
 
 > **렌더링 차단 450ms → 0ms (차단 리소스 0개, score 0 → 1).** Before/After가 가장 깔끔하게 떨어지는 항목입니다.
 
-#### 3-4. 초기 JavaScript 실행 최적화 → 클라이언트 경계 관리
+#### 3-4. 첫 화면에 실리는 JavaScript 제한
 
-마켓컬리의 TBT 650ms는 "초기 번들·서드파티 스크립트가 메인 스레드를 장시간 점유"한 결과입니다. 같은 항목에서 **60ms**가 나온 건 번들러를 튜닝해서가 아니라, **첫 화면에 실어 보내는 클라이언트 코드의 양을 경계 단위로 제한**했기 때문입니다.
+마켓컬리의 TBT 650ms는 1단계 리포트에 "초기 번들·서드파티 스크립트가 메인 스레드를 장시간 점유"로 기록돼 있습니다. 같은 항목에서 **60ms**가 나온 건 번들을 튜닝해서가 아니라, **애초에 메인 스레드를 점유할 코드를 첫 화면에 올리지 않았기** 때문입니다. 세 가지가 그 결과를 만듭니다.
 
-페이지 셸을 서버 컴포넌트로 두고 상태가 필요한 구획만 클라이언트 경계로 분리하는 구조는 홈 화면 API 연동(선행 작업)에서 잡혔고, 그 위에 아래 세 가지를 올렸습니다.
+- **서드파티 추적 스크립트가 없습니다.** 애널리틱스·광고 태그·채팅 위젯을 하나도 붙이지 않았고, 런타임 의존성도 11개입니다. 시연 스코프 프로젝트라 가능했던 조건이기도 합니다.
+- **외부 스크립트 2개는 쓰는 라우트에서만 로드합니다.** 토스 SDK는 `requestTossPayment.ts` → `CheckoutView` 한 경로뿐이라 홈 번들에 들어가지 않고 결제 시점에 `loadTossPayments()`로 받아옵니다([#123](https://github.com/5issue/total-client/pull/123)). 카카오 우편번호 SDK는 `strategy="afterInteractive"`로 첫 페인트 이후에 붙습니다([#73](https://github.com/5issue/total-client/pull/73)).
+- **바텀시트는 데이터가 오기 전까지 마운트하지 않습니다.** `useProductDetail(activeProductId ?? '', activeProductId !== null)`로 쿼리를 `enabled` 게이팅하고 시트도 조건부 렌더라, 첫 렌더에는 시트 트리가 존재하지 않아 하이드레이션 대상에서도 빠집니다([#194](https://github.com/5issue/total-client/pull/194)).
 
-**① 바텀시트는 데이터가 올 때까지 마운트하지 않는다** ([#194](https://github.com/5issue/total-client/pull/194))
-
-시트는 조건부 렌더이고, 시트가 쓸 상세 쿼리도 카드를 누르기 전까지 비활성입니다.
-
-```tsx
-// src/components/organisms/home/HomeProductSections/HomeProductSections.tsx
-// 두 번째 인자가 TanStack Query 의 enabled — activeProductId 가 null 이면 요청 자체가 안 나간다
-const detailQuery = useProductDetail(activeProductId ?? '', activeProductId !== null);
-
-{detail && detail.units.length > 1 ? <MultiOptionSelectBottomSheet open={sheetOpen} … /> : null}
-{detail?.units[0] && detail.units.length <= 1 ? <ProductOptionSheet open={sheetOpen} … /> : null}
-```
-
-첫 렌더에서는 시트 트리가 아예 존재하지 않아 하이드레이션 대상에서도 빠집니다.
-
-**② 결제 SDK는 결제 라우트에서만 로드한다** ([#123](https://github.com/5issue/total-client/pull/123))
-
-토스 SDK(`@tosspayments/tosspayments-sdk`)를 import하는 파일은 `src/lib/checkout/requestTossPayment.ts` 하나뿐이고, 이를 쓰는 컴포넌트도 `CheckoutView` 하나입니다. 라우트 단위로 쪼개지므로 홈 번들에 들어가지 않고, 실제 SDK는 결제 시점에 `await loadTossPayments(clientKey)`로 받아옵니다.
-
-**③ 외부 스크립트는 첫 페인트 이후, 서비스 워커는 프로덕션만** ([#73](https://github.com/5issue/total-client/pull/73))
-
-우편번호 검색 SDK는 `next/script`의 `strategy="afterInteractive"`로 첫 페인트 이후에 붙입니다(`PostcodeSearch.tsx`). Serwist 서비스 워커는 `disable={process.env.NODE_ENV !== 'production'}`로 개발 모드에서는 등록조차 하지 않습니다.
-
-> **TBT 650ms → 60ms (91% 감소).** 마켓컬리 기준선 대비입니다. 우리 1차 측정의 TBT는 173ms로 애초에 JS 실행 병목이 없었습니다 — 이 항목은 생긴 문제를 되돌린 게 아니라, 경쟁사가 겪는 병목을 처음부터 구조로 막아둔 결과입니다.
+> **TBT 650ms → 60ms.** 마켓컬리 기준선 대비이고, 우리 1차 TBT는 이미 173ms였습니다. 없던 병목을 없앤 게 아니라 **만들지 않은 쪽**에 가깝습니다 — 세 항목 모두 TBT를 겨냥해 따로 작업한 게 아니라, 기능 구현 과정에서 내린 선택이 그대로 측정값으로 나타난 경우입니다.
 
 #### 3-5. LCP 이미지 우선순위 → `src/components/organisms/home/HeroBanner/HeroBanner.tsx`
 
@@ -266,7 +245,7 @@ const detailQuery = useProductDetail(activeProductId ?? '', activeProductId !== 
 
 > **`fetchpriority=high` 적용, `priorityHinted: false` 해소.** 공식 문서와 `next/image` 소스를 직접 확인해 이전 PR의 잘못된 전제를 되돌린 건이기도 합니다.
 
-#### 3-6. 이미지 포맷·호스트 정책 → `next.config.ts`, `src/lib/imageHosts.ts`
+#### 3-6. 이미지 포맷·호스트 정책 → `next.config.ts`
 
 ```ts
 images: {
@@ -276,7 +255,7 @@ images: {
 }
 ```
 
-외부 이미지 호스트 목록은 `src/lib/imageHosts.ts` 한 곳에서 관리합니다. `next.config.ts`의 `remotePatterns`와, 런타임에서 신뢰할 수 없는 외부 URL(AI 레시피 응답의 `image_url` 등)을 걸러내는 `isAllowedImageSrc()`가 **같은 목록을 공유**하기 때문에, 호스트를 한 번 추가하면 빌드 설정과 런타임 검증에 동시에 반영됩니다.
+상품 이미지 CDN 도메인이 화이트리스트에 없어 `next/image`가 렌더링 자체를 막던 문제를 잡으면서, 리사이즈 경로가 제각각인 두 도메인을 `remotePatterns`에 등록했습니다. 목록은 이후 별도 모듈로 분리돼 런타임 URL 검증과 공유됩니다.
 
 > **원본 PNG → AVIF·WebP 협상.** 기준선이 2.4MB PNG를 그대로 내려주던 지점이고, 호스트 화이트리스트를 한 곳으로 모아 빌드·런타임이 어긋날 여지를 없앴습니다.
 
