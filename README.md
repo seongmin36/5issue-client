@@ -18,13 +18,6 @@
 
 **성능·접근성 최적화 전 과정** — 경쟁사 기준선 측정부터 병목 분석, 코드 개선, 측정 방법론 검증까지 단독으로 진행했습니다. 이 README의 [성능·접근성 최적화](#성능접근성-최적화) 섹션 전체가 해당 작업입니다.
 
-| 작업                                                     | PR                                                            |
-| -------------------------------------------------------- | ------------------------------------------------------------- |
-| 1차 Lighthouse 감사 개선 — 색상 대비·렌더링 차단 CSS·폰트 | [#168](https://github.com/5issue/total-client/pull/168)                                                |
-| Pretendard 가변 폰트 자체 호스팅                          | [#122](https://github.com/5issue/total-client/pull/122)                                                |
-| 히어로 배너 LCP `fetchPriority` 명시 + `preload` 복귀     | [#165](https://github.com/5issue/total-client/pull/165), [#188](https://github.com/5issue/total-client/pull/188)                                |
-| 상품 이미지 CDN 도메인 화이트리스트                       | [#157](https://github.com/5issue/total-client/pull/157)                                                |
-
 **기능 구현**
 
 | 작업                                                     | PR                      |
