@@ -25,10 +25,10 @@
 | 3-3         | Critical CSS 인라인 — 렌더링 차단 450ms → 0ms                   | [#168](https://github.com/5issue/total-client/pull/168)                 |
 | 3-4         | 외부 SDK 라우트 분리·지연 로드, 시트 지연 마운트               | [#123](https://github.com/5issue/total-client/pull/123), [#73](https://github.com/5issue/total-client/pull/73), [#194](https://github.com/5issue/total-client/pull/194) |
 | 3-5         | 히어로 배너 LCP `fetchPriority` 명시 + `preload` 복귀           | [#165](https://github.com/5issue/total-client/pull/165), [#188](https://github.com/5issue/total-client/pull/188) |
-| 3-6         | 상품 이미지 CDN 도메인 `next/image` 화이트리스트 등록           | [#157](https://github.com/5issue/total-client/pull/157)                 |
-| 3-7         | Lighthouse 측정 방법론 검증 — Lantern 시뮬레이션 아티팩트 규명  | 측정·분석                      |
+| 3-7         | 상품 이미지 CDN 도메인 `next/image` 화이트리스트 등록           | [#157](https://github.com/5issue/total-client/pull/157)                 |
+| 3-8         | Lighthouse 측정 방법론 검증 — Lantern 시뮬레이션 아티팩트 규명  | 측정·분석                      |
 
-3-4의 전제가 되는 "페이지 셸은 서버 컴포넌트, 상태 구획만 클라이언트 경계"라는 구조 자체는 홈 화면 API 연동(선행 작업)에서 잡힌 것이라 제 작업으로 세지 않았습니다.
+표에 없는 **3-6**(종횡비 토큰)과 3-4의 서버 컴포넌트 구조는 팀원 [dew2314](https://github.com/dew2314) 작업입니다 — 측정 결과에 영향을 주는 부분이라 본문에는 남기되, 해당 섹션에 작업자를 표시해 뒀습니다.
 
 ## 기술 스택
 
@@ -84,7 +84,7 @@ Figma 변수를 Style Dictionary로 빌드하지 않습니다. `src/styles/token
 
 두 가지를 특히 신경 썼습니다.
 
-- **측정 도구 자체를 의심했습니다.** 개선 후에도 LCP가 14~30초로 요동쳐, Lighthouse 기본 모드(Lantern 시뮬레이션)가 만들어낸 수치 아티팩트임을 `2,057,688B ÷ 184.3KB/s ≈ 10.9초` 산술로 증명하고 측정 방식을 바꿨습니다 → **3-7**
+- **측정 도구 자체를 의심했습니다.** 개선 후에도 LCP가 14~30초로 요동쳐, Lighthouse 기본 모드(Lantern 시뮬레이션)가 만들어낸 수치 아티팩트임을 `2,057,688B ÷ 184.3KB/s ≈ 10.9초` 산술로 증명하고 측정 방식을 바꿨습니다 → **3-8**
 - **성과로 세지 않은 항목을 남겼습니다.** Before/After JSON 대조에서 변화가 확인되지 않은 2건은 개선 목록에서 제외했습니다 → **끝내지 못한 것**
 
 ### 최적화 4단계 흐름
@@ -174,7 +174,7 @@ function tryRefresh(): Promise<boolean> {
 }
 ```
 
-> **LCP 41.7초 → 4.2초.** 단, 이 수치는 "41.7초짜리 타임아웃이 사라지고 정상 범위로 돌아왔다"는 방향성으로 읽는 것이 정확합니다 — 두 값 모두 시뮬레이션 모드 측정치이고, 그 신뢰도는 3-7에서 따로 검증했습니다.
+> **LCP 41.7초 → 4.2초.** 단, 이 수치는 "41.7초짜리 타임아웃이 사라지고 정상 범위로 돌아왔다"는 방향성으로 읽는 것이 정확합니다 — 두 값 모두 시뮬레이션 모드 측정치이고, 그 신뢰도는 3-8에서 따로 검증했습니다.
 
 #### 3-2. 폰트 TTF → WOFF2 → `src/lib/fonts.ts`
 
@@ -213,13 +213,14 @@ Tailwind 같은 atomic CSS는 페이지가 커져도 **실제로 쓰는 클래�
 
 #### 3-4. 첫 화면에 실리는 JavaScript 제한
 
-마켓컬리의 TBT 650ms는 1단계 리포트에 "초기 번들·서드파티 스크립트가 메인 스레드를 장시간 점유"로 기록돼 있습니다. 같은 항목에서 **60ms**가 나온 건 번들을 튜닝해서가 아니라, **애초에 메인 스레드를 점유할 코드를 첫 화면에 올리지 않았기** 때문입니다. 세 가지가 그 결과를 만듭니다.
+마켓컬리의 TBT 650ms는 1단계 리포트에 "초기 번들·서드파티 스크립트가 메인 스레드를 장시간 점유"로 기록돼 있습니다. 같은 항목에서 **60ms**가 나온 건 번들을 튜닝해서가 아니라, **애초에 메인 스레드를 점유할 코드를 첫 화면에 올리지 않았기** 때문입니다. 네 가지가 그 결과를 만듭니다.
 
+- **페이지 셸이 서버 컴포넌트로 남습니다.** 상태가 필요한 구획만 클라이언트 경계로 분리하는 구조로, 홈 화면 API 연동에서 잡혔습니다 — [dew2314](https://github.com/dew2314) 작업([#137](https://github.com/5issue/total-client/pull/137)).
 - **서드파티 추적 스크립트가 없습니다.** 애널리틱스·광고 태그·채팅 위젯을 하나도 붙이지 않았고, 런타임 의존성도 11개입니다. 시연 스코프 프로젝트라 가능했던 조건이기도 합니다.
 - **외부 스크립트 2개는 쓰는 라우트에서만 로드합니다.** 토스 SDK는 `requestTossPayment.ts` → `CheckoutView` 한 경로뿐이라 홈 번들에 들어가지 않고 결제 시점에 `loadTossPayments()`로 받아옵니다([#123](https://github.com/5issue/total-client/pull/123)). 카카오 우편번호 SDK는 `strategy="afterInteractive"`로 첫 페인트 이후에 붙습니다([#73](https://github.com/5issue/total-client/pull/73)).
 - **바텀시트는 데이터가 오기 전까지 마운트하지 않습니다.** `useProductDetail(activeProductId ?? '', activeProductId !== null)`로 쿼리를 `enabled` 게이팅하고 시트도 조건부 렌더라, 첫 렌더에는 시트 트리가 존재하지 않아 하이드레이션 대상에서도 빠집니다([#194](https://github.com/5issue/total-client/pull/194)).
 
-> **TBT 650ms → 60ms.** 마켓컬리 기준선 대비이고, 우리 1차 TBT는 이미 173ms였습니다. 없던 병목을 없앤 게 아니라 **만들지 않은 쪽**에 가깝습니다 — 세 항목 모두 TBT를 겨냥해 따로 작업한 게 아니라, 기능 구현 과정에서 내린 선택이 그대로 측정값으로 나타난 경우입니다.
+> **TBT 650ms → 60ms.** 마켓컬리 기준선 대비이고, 우리 1차 TBT는 이미 173ms였습니다. 없던 병목을 없앤 게 아니라 **만들지 않은 쪽**에 가깝습니다 — 어느 항목도 TBT를 겨냥해 따로 작업한 게 아니라, 기능 구현 과정에서 내린 선택이 그대로 측정값으로 나타난 경우입니다.
 
 #### 3-5. LCP 이미지 우선순위 → `src/components/organisms/home/HeroBanner/HeroBanner.tsx`
 
@@ -245,7 +246,20 @@ Tailwind 같은 atomic CSS는 페이지가 커져도 **실제로 쓰는 클래�
 
 > **`fetchpriority=high` 적용, `priorityHinted: false` 해소.** 공식 문서와 `next/image` 소스를 직접 확인해 이전 PR의 잘못된 전제를 되돌린 건이기도 합니다.
 
-#### 3-6. 이미지 포맷·호스트 정책 → `next.config.ts`
+#### 3-6. CLS 0 — 종횡비 토큰 선고정 → `src/styles/globals.css`
+
+> 이 항목은 [dew2314](https://github.com/dew2314) 작업입니다([#85](https://github.com/5issue/total-client/pull/85)). 측정 결과에 영향을 줘서 함께 적어둡니다.
+
+Figma 실측 종횡비를 토큰으로 선언해, 이미지가 들어가는 자리를 로드 전에 확보합니다.
+
+```css
+--aspect-hero-banner: 402 / 298; /* 히어로 배너 (node 577:20652) */
+--aspect-product-card: 150 / 240;
+```
+
+리스트 썸네일도 같은 규칙이라(`h-21` + `aspect-3/4`) 이미지 도착 전후로 행 높이가 변하지 않고, 측정에서 **CLS 0**으로 나타났습니다.
+
+#### 3-7. 이미지 포맷·호스트 정책 → `next.config.ts`
 
 ```ts
 images: {
@@ -255,11 +269,11 @@ images: {
 }
 ```
 
-상품 이미지 CDN 도메인이 화이트리스트에 없어 `next/image`가 렌더링 자체를 막던 문제를 잡으면서, 리사이즈 경로가 제각각인 두 도메인을 `remotePatterns`에 등록했습니다. 목록은 이후 별도 모듈로 분리돼 런타임 URL 검증과 공유됩니다.
+상품 이미지 CDN 도메인이 화이트리스트에 없어 `next/image`가 렌더링 자체를 막던 문제를 잡으면서, 리사이즈 경로가 제각각인 두 도메인을 `remotePatterns`에 등록했습니다. 목록은 이후 별도 모듈(`src/lib/imageHosts.ts`)로 분리돼 런타임 URL 검증과 공유됩니다 — [dew2314](https://github.com/dew2314) 작업([#173](https://github.com/5issue/total-client/pull/173)).
 
 > **원본 PNG → AVIF·WebP 협상.** 기준선이 2.4MB PNG를 그대로 내려주던 지점이고, 호스트 화이트리스트를 한 곳으로 모아 빌드·런타임이 어긋날 여지를 없앴습니다.
 
-#### 3-7. 측정 방식 자체의 검증 — "LCP 14초"의 정체
+#### 3-8. 측정 방식 자체의 검증 — "LCP 14초"의 정체
 
 개선 후에도 LCP가 로컬 14.3초, 배포 17.6초로 나와 원인을 추적했는데, **코드 문제가 아니라 Lighthouse 기본 모드(Lantern 시뮬레이션)의 산출물**이었습니다. 같은 리포트 안에서 숫자가 두 갈래로 갈립니다.
 
@@ -291,7 +305,7 @@ today-deal.webp (LCP 이미지)   20,069 B   priority: High   isLinkPreload: tru
 
 #### 2차 측정 결과 정리
 
-3-1 ~ 3-6의 개선을 모두 반영한 뒤 다시 측정한 결과입니다.
+3-1 ~ 3-7의 개선을 모두 반영한 뒤 다시 측정한 결과입니다.
 
 <img width="1281" height="602" alt="스크린샷 2026-10-08 오전 4 36 18" src="https://github.com/user-attachments/assets/83d0cf49-e21e-4e2a-be7e-987155273e9a" />
 
