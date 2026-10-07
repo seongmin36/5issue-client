@@ -81,7 +81,7 @@ Figma 변수를 Style Dictionary로 빌드하지 않습니다. `src/styles/token
 
 벤치마킹 대상의 현재 상태를 먼저 측정해, "우리가 실제로 개선 가능한 항목"과 "비즈니스 제약상 어쩔 수 없는 항목"을 분리했습니다.
 
-<img width="748" height="424" alt="스크린샷 2026-10-08 오전 3 59 52" src="https://github.com/user-attachments/assets/ee2823cc-788e-435a-be68-2249691cd92c" />
+<img width="1346" height="725" alt="스크린샷 2026-10-08 오전 4 28 23" src="https://github.com/user-attachments/assets/8ce0cbbf-812c-485d-9bfb-17dfeb29a19b" />
 
 | 항목            | 마켓컬리 메인 측정값                  |
 | --------------- | ------------------------------------- |
@@ -107,7 +107,7 @@ Figma 변수를 Style Dictionary로 빌드하지 않습니다. `src/styles/token
 
 구현이 올라온 뒤 같은 조건으로 우리 서비스를 측정했습니다. 결과는 기준선보다 **더 나빴습니다.**
 
-<img width="3840" height="2160" alt="image" src="https://github.com/user-attachments/assets/9a1d7a12-f46c-421d-87f7-b3a012c648b4" />
+<img width="1283" height="624" alt="스크린샷 2026-10-08 오전 4 30 51" src="https://github.com/user-attachments/assets/65ee0d63-174e-4653-9f73-2cbf7d3d1f99" />
 
 | 항목                   | 1차 측정값                         | 판정                      |
 | ---------------------- | ---------------------------------- | ------------------------- |
@@ -280,25 +280,13 @@ today-deal.webp (LCP 이미지)   20,069 B   priority: High   isLinkPreload: tru
 
 같은 페이지가 시뮬레이션에서는 17.6~30초로 요동치고, 실제 쓰로틀링에서는 세 번 다 1.5초대로 수렴합니다. **이후 성능 판단은 devtools 모드를 기준으로 하고, 시뮬레이션 수치는 경쟁사와 같은 방식으로 측정한 비교용으로만 병기합니다.**
 
-<!-- 이미지: 같은 페이지 시뮬레이션 vs devtools 측정 비교 스크린샷 2장 -->
-
-#### 2차 측정 결과 정리
-
-| 항목            | 1차            | 2차            | 변화          |
-| --------------- | -------------- | -------------- | ------------- |
-| LCP (시뮬레이션) | 41.7초 (타임아웃) | 4.2초        | 정상 범위 복귀 |
-| 폰트 전송량      | 6.7MB          | 2.06MB         | **-69%**      |
-| 렌더링 차단      | 450ms          | 0ms            | **차단 0건**  |
-| 총 전송량        | 8.70MB / 93건  | 6.20MB / 62건  | **-29%**      |
-| Performance      | 측정 불가      | 78점           | —             |
-
-<img width="3840" height="2160" alt="image" src="https://github.com/user-attachments/assets/9a1d7a12-f46c-421d-87f7-b3a012c648b4" />
+<img width="1281" height="602" alt="스크린샷 2026-10-08 오전 4 36 18" src="https://github.com/user-attachments/assets/83d0cf49-e21e-4e2a-be7e-987155273e9a" />
 
 ---
 
 ### 4단계. 마켓컬리 대비 최종 결과
 
-<img width="3840" height="2160" alt="image" src="https://github.com/user-attachments/assets/32e39149-cb38-4098-9271-26299ae4ced3" />
+<img width="1290" height="677" alt="스크린샷 2026-10-08 오전 4 37 29" src="https://github.com/user-attachments/assets/5fd1d6ae-1cda-48c1-82a8-eda3b7c6666b" />
 
 시뮬레이션 축은 **경쟁사와 동일한 조건에서의 비교**, 실측 축은 **실제 모바일 쓰로틀링에서의 성능**입니다. 두 축을 분리해 병기합니다.
 
@@ -353,35 +341,6 @@ lighthouse https://<host>/ \
 
 ---
 
-## 시작하기
-
-```bash
-nvm use                  # Node 24.19.0 (.nvmrc)
-npm install
-cp .env.example .env.local
-npm run dev              # http://localhost:3000
-```
-
-로컬 백엔드는 서비스마다 포트가 나뉩니다. `API_INTERNAL_URL` 기본값 `http://localhost:4000`에 맞추려면 다른 터미널에서 `npm run dev:gateway`를 먼저 띄웁니다.
-
-| 스크립트                 | 설명                                      |
-| ------------------------ | ----------------------------------------- |
-| `npm run dev`            | 개발 서버 (Turbopack)                     |
-| `npm run dev:gateway`    | 로컬 API 게이트웨이 (포트 4000)           |
-| `npm run build`          | 프로덕션 빌드 (`output: "standalone"`)    |
-| `npm run start`          | 빌드 결과 실행                            |
-| `npm run typecheck`      | `tsc` (앱 + 서비스 워커)                  |
-| `npm run lint`           | ESLint                                    |
-| `npm run format`         | Prettier                                  |
-| `npm run format:check`   | Prettier 검사                             |
-| `npm run storybook`      | Storybook (http://localhost:6006)         |
-| `npm run test-storybook` | 스토리 렌더·인터랙션 (Vitest)             |
-| `npm run test:unit`      | 유닛 테스트                               |
-| `npm run e2e:login`      | 소셜 로그인 세션 저장 (헤드풀, 1회)       |
-| `npm run e2e`            | Playwright (`e2e/.auth/user.json` 재사용) |
-
-Package manager는 **npm** `11.17.0`입니다. `package-lock.json`으로 버전을 고정합니다.
-
 ## 문서
 
 진입점은 [`CLAUDE.md`](./CLAUDE.md)이고, 상세 규칙은 [`.agents/`](./.agents)입니다.
@@ -393,44 +352,3 @@ Package manager는 **npm** `11.17.0`입니다. `package-lock.json`으로 버전�
 - [보안](./.agents/security-convention/SKILLS.md) — FE-01~FE-16
 
 컴포넌트 카탈로그는 [Chromatic develop](https://develop--6a978509faf77cfdcaeb125d.chromatic.com/)에 올라갑니다.
-
-## 프로젝트 구조
-
-```text
-5issue-client
-┣ 📜 CLAUDE.md
-┣ 📜 next.config.ts
-┣ 📜 package.json
-┣ 📂 .agents                 # api / structure / code-style / git / security
-┣ 📂 .github                 # CI, PR·이슈 템플릿
-┣ 📂 e2e                     # Playwright
-┣ 📂 k8s                     # ConfigMap·Deployment 예시
-┣ 📂 scripts                 # 로컬 게이트웨이, 아이콘 빌드
-┗ 📂 src
-  ┣ 📂 app
-  ┃ ┣ 📂 (auth)              # 회원가입
-  ┃ ┣ 📂 (shop)              # 홈·검색·상품·장바구니·체크아웃·마이페이지
-  ┃ ┣ 📂 api                 # Route Handler (BFF)
-  ┃ ┗ 📂 callback            # OAuth 콜백
-  ┣ 📂 components            # atoms / molecules / organisms
-  ┣ 📂 hooks                 # 도메인별 TanStack Query
-  ┣ 📂 lib                   # apiClient, env, 인증 쿠키
-  ┣ 📂 styles/tokens         # 컬러·타이포 토큰
-  ┣ 📂 types                 # Zod 스키마
-  ┗ 📜 middleware.ts         # refresh_token 유무로 보호 경로 가드
-```
-
-## 배포
-
-`Dockerfile`(3-stage, Node 24.19.0-slim)과 `k8s/*.example.yaml`을 사용합니다. `NEXT_PUBLIC_*`는 빌드 인자로 넣고, `API_INTERNAL_URL`은 런타임 환경변수입니다.
-
-```bash
-docker build \
-  --build-arg NEXT_PUBLIC_API_URL=https://api.example.com \
-  --build-arg NEXT_PUBLIC_APP_ENV=production \
-  -t 5issue-client:local .
-docker run -p 3000:3000 \
-  -e API_INTERNAL_URL=http://api.internal \
-  -e AI_SERVICE_INTERNAL_URL=http://ai.internal \
-  5issue-client:local
-```
