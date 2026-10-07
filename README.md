@@ -242,7 +242,7 @@ const detailQuery = useProductDetail(activeProductId ?? '', activeProductId !== 
 
 우편번호 검색 SDK는 `next/script`의 `strategy="afterInteractive"`로 첫 페인트 이후에 붙입니다(`PostcodeSearch.tsx`). Serwist 서비스 워커는 `disable={process.env.NODE_ENV !== 'production'}`로 개발 모드에서는 등록조차 하지 않습니다.
 
-> **TBT 650ms → 60ms (91% 감소).** 다만 이 Before 값은 마켓컬리 기준선이고, 우리 1차 측정의 TBT는 173ms였습니다 — 1차에서 이미 양호했던 지표를 구조 설계로 더 낮춘 쪽에 가깝습니다.
+> **TBT 650ms → 60ms (91% 감소).** 마켓컬리 기준선 대비입니다. 우리 1차 측정의 TBT는 173ms로 애초에 JS 실행 병목이 없었습니다 — 이 항목은 생긴 문제를 되돌린 게 아니라, 경쟁사가 겪는 병목을 처음부터 구조로 막아둔 결과입니다.
 
 #### 3-5. LCP 이미지 우선순위 → `src/components/organisms/home/HeroBanner/HeroBanner.tsx`
 
