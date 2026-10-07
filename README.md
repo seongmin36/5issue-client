@@ -16,17 +16,18 @@
 
 ## 기여 범위 — [seongmin36](https://github.com/seongmin36)
 
-**성능·접근성 최적화 전 과정** — 경쟁사 기준선 측정부터 병목 분석, 코드 개선, 측정 방법론 검증까지 단독으로 진행했습니다. 이 README의 [성능·접근성 최적화](#성능접근성-최적화) 섹션 전체가 해당 작업입니다.
+경쟁사 기준선 측정부터 병목 분석, 개선, 측정 방법론 검증까지 **성능 과제 전반을 주도**했습니다. 아래 표가 직접 코드를 작업한 항목입니다.
 
-**기능 구현**
+| README 섹션 | 작업                                                           | PR                             |
+| ----------- | -------------------------------------------------------------- | ------------------------------ |
+| 3-1         | 인증 401 재시도 루프 차단 — in-flight 프로미스로 동시 재발급 합치기 | [#123](https://github.com/5issue/total-client/pull/123)                 |
+| 3-2         | Pretendard 자체 호스팅 → TTF에서 WOFF2로 전환 (6.7MB → 2.06MB)  | [#122](https://github.com/5issue/total-client/pull/122), [#168](https://github.com/5issue/total-client/pull/168) |
+| 3-3         | Critical CSS 인라인 — 렌더링 차단 450ms → 0ms                   | [#168](https://github.com/5issue/total-client/pull/168)                 |
+| 3-5         | 히어로 배너 LCP `fetchPriority` 명시 + `preload` 복귀           | [#165](https://github.com/5issue/total-client/pull/165), [#188](https://github.com/5issue/total-client/pull/188) |
+| 3-7         | 상품 이미지 CDN 도메인 `next/image` 화이트리스트 등록           | [#157](https://github.com/5issue/total-client/pull/157)                 |
+| 3-8         | Lighthouse 측정 방법론 검증 — Lantern 시뮬레이션 아티팩트 규명  | 측정·분석                      |
 
-| 작업                                                     | PR                      |
-| -------------------------------------------------------- | ----------------------- |
-| 토스페이먼츠 결제 연동 (#109)                             | [#123](https://github.com/5issue/total-client/pull/123)          |
-| 장바구니·배송지 API 연동 (#118, #119)                     | [#121](https://github.com/5issue/total-client/pull/121)          |
-| 장바구니 → 주문서 연결 (#120)                             | [#121](https://github.com/5issue/total-client/pull/121)          |
-| 카드사 선택 바텀시트 (#100)                               | [#117](https://github.com/5issue/total-client/pull/117)          |
-| 상품상세·My레시피·My냉장고 → 장바구니 담기 (#143, #145)   | —                       |
+나머지 두 섹션은 공동 작업이라 구분해 둡니다. **3-4**(RSC 경계)는 홈 화면의 클라이언트 경계 분리가 선행 작업이고, 그 위에 바텀시트 지연 마운트·장바구니 담기 연결([#145](https://github.com/5issue/total-client/pull/145), [#194](https://github.com/5issue/total-client/pull/194))과 토스 SDK 라우트 분리([#123](https://github.com/5issue/total-client/pull/123))를 올렸습니다. **3-6**(종횡비 토큰)은 퍼블리싱 단계에서 들어온 구조를 그대로 활용했습니다.
 
 ## 기술 스택
 
