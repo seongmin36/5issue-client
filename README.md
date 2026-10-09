@@ -122,7 +122,7 @@ Figma 변수를 Style Dictionary로 빌드하지 않습니다. `src/styles/token
 
 구현이 올라온 뒤 같은 조건으로 우리 서비스를 측정했습니다. 카테고리 점수는 기준선을 앞섰지만(66점 vs 40점), **LCP 41.7초는 기준선 21.6초보다 두 배 가까이 나빴습니다.**
 
-<img width="1283" height="624" alt="스크린샷 2026-10-08 오전 4 30 51" src="https://github.com/user-attachments/assets/65ee0d63-174e-4653-9f73-2cbf7d3d1f99" />
+<img width="1525" height="733" alt="스크린샷 2026-10-10 오전 4 20 46" src="https://github.com/user-attachments/assets/3ddfa3fc-f711-4e73-a554-e9e694468eb7" />
 
 | 항목             | 1차 측정값                        | 판정                     |
 | ---------------- | --------------------------------- | ------------------------ |
@@ -307,7 +307,7 @@ today-deal.webp (LCP 이미지)   20,069 B   priority: High   isLinkPreload: tru
 
 3-1 ~ 3-7의 개선을 모두 반영한 뒤 다시 측정한 결과입니다.
 
-<img width="1281" height="602" alt="스크린샷 2026-10-08 오전 4 36 18" src="https://github.com/user-attachments/assets/83d0cf49-e21e-4e2a-be7e-987155273e9a" />
+<img width="1518" height="717" alt="스크린샷 2026-10-10 오전 4 19 33" src="https://github.com/user-attachments/assets/d454b821-bfcd-4061-90cf-1b4cac7fefb5" />
 
 ---
 
