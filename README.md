@@ -25,7 +25,7 @@
 | 3-3         | Critical CSS 인라인 — 렌더링 차단 450ms → 0ms                   | [#168](https://github.com/5issue/total-client/pull/168)                 |
 | 3-4         | 외부 SDK 라우트 분리·지연 로드, 시트 지연 마운트               | [#123](https://github.com/5issue/total-client/pull/123), [#73](https://github.com/5issue/total-client/pull/73), [#194](https://github.com/5issue/total-client/pull/194) |
 | 3-5         | 히어로 배너 LCP `fetchPriority` 명시 + `preload` 복귀           | [#165](https://github.com/5issue/total-client/pull/165), [#188](https://github.com/5issue/total-client/pull/188) |
-| 3-7         | 상품 이미지 CDN 도메인 `next/image` 화이트리스트 등록           | [#157](https://github.com/5issue/total-client/pull/157)                 |
+| 3-7         | 이미지 포맷 협상(AVIF·WebP) + CDN 도메인 화이트리스트 등록      | [#157](https://github.com/5issue/total-client/pull/157)                 |
 | 3-8         | Lighthouse 측정 방법론 검증 — Lantern 시뮬레이션 아티팩트 규명  | 측정·분석                      |
 
 표에 없는 **3-6**(종횡비 토큰)과 3-4의 서버 컴포넌트 구조는 팀원 [dew2314](https://github.com/dew2314) 작업입니다 — 측정 결과에 영향을 주는 부분이라 본문에는 남기되, 해당 섹션에 작업자를 표시해 뒀습니다.
@@ -259,7 +259,9 @@ Figma 실측 종횡비를 토큰으로 선언해, 이미지가 들어가는 자�
 
 리스트 썸네일도 같은 규칙이라(`h-21` + `aspect-3/4`) 이미지 도착 전후로 행 높이가 변하지 않고, 측정에서 **CLS 0**으로 나타났습니다.
 
-#### 3-7. 이미지 포맷·호스트 정책 → `next.config.ts`
+#### 3-7. 이미지 포맷 협상 → `next.config.ts`
+
+기준선에서 가장 먼저 눈에 띈 항목이 "메인 히어로 이미지 PNG 2.4MB"였습니다. `next/image`에 포맷 협상을 켜두면 브라우저가 지원하는 최신 포맷으로 내려가고, 디바이스 폭에 맞춰 리사이즈됩니다.
 
 ```ts
 images: {
@@ -269,9 +271,9 @@ images: {
 }
 ```
 
-상품 이미지 CDN 도메인이 화이트리스트에 없어 `next/image`가 렌더링 자체를 막던 문제를 잡으면서, 리사이즈 경로가 제각각인 두 도메인을 `remotePatterns`에 등록했습니다. 목록은 이후 별도 모듈(`src/lib/imageHosts.ts`)로 분리돼 런타임 URL 검증과 공유됩니다 — [dew2314](https://github.com/dew2314) 작업([#173](https://github.com/5issue/total-client/pull/173)).
+다만 이 설정은 `next/image`를 통과한 이미지에만 걸립니다. 상품 이미지 CDN 두 도메인이 `remotePatterns`에 없어 렌더링 자체가 막혀 있었고(리사이즈 경로가 `/hdims/`·`/shop/`·`/product/`로 제각각), 이를 등록하면서 상품 이미지도 포맷 협상 대상에 들어왔습니다. 목록은 이후 별도 모듈(`src/lib/imageHosts.ts`)로 분리돼 런타임 URL 검증과 공유됩니다 — [dew2314](https://github.com/dew2314) 작업([#173](https://github.com/5issue/total-client/pull/173)).
 
-> **원본 PNG → AVIF·WebP 협상.** 기준선이 2.4MB PNG를 그대로 내려주던 지점이고, 호스트 화이트리스트를 한 곳으로 모아 빌드·런타임이 어긋날 여지를 없앴습니다.
+> **원본 PNG → AVIF·WebP.** 기준선의 2.4MB PNG에 직접 대응하는 항목입니다.
 
 #### 3-8. 측정 방식 자체의 검증 — "LCP 14초"의 정체
 
