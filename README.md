@@ -14,6 +14,15 @@
 
 > 프론트엔드 2인(+백엔드·AI·디자인 파트) 팀 프로젝트입니다. 서비스 자체는 운영 비용 문제로 중단했고, **[컴포넌트 카탈로그(Chromatic)](https://develop--6a978509faf77cfdcaeb125d.chromatic.com/)** 는 지금도 열람할 수 있습니다.
 
+### AI 에이전트 협업 방식
+
+AI 에이전트로 구현 속도를 높이되, 규칙으로 출력을 고정하고 결과물은 직접 검증했습니다.
+
+- **규칙** — [`CLAUDE.md`](./CLAUDE.md)를 진입점으로 두고, [`.agents/`](./.agents)에 컨벤션 5종(API · 구조 · 코드 스타일 · Git · 보안)을 분리했습니다.
+- **CI에서 실패를 막는 검증** — PR마다 Prettier(포맷), ESLint(코드 규칙), 타입 체크, 빌드를 돌리고, 별도 잡에서 Storybook 빌드와 Vitest(스토리 테스트 + 단위 테스트)를 실행합니다.
+- **로컬 커밋 훅** — husky로 커밋 전에 lint-staged(ESLint · Prettier)와 타입 체크를 돌리고, commitlint로 커밋 메시지 형식을 확인합니다.
+- **로컬·수동 확인** — Storybook addon-a11y는 위반을 표시만 하고(`test: 'todo'`) CI를 막지 않습니다. Lighthouse는 수동으로 측정해 리포트를 대조했습니다. Playwright e2e는 CI에서 실행하지 않습니다.
+
 ## 기여 범위 — [seongmin36](https://github.com/seongmin36)
 
 경쟁사 기준선 측정부터 병목 분석, 개선, 측정 방법론 검증까지 **성능 과제 전반을 주도**했습니다. 아래 표가 직접 코드를 작업한 항목입니다 — **3-6은 팀원 [dew2314](https://github.com/dew2314) 작업이라 빠져 있습니다.**
