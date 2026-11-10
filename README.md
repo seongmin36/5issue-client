@@ -316,6 +316,8 @@ today-deal.webp (LCP 이미지)   20,069 B   priority: High   isLinkPreload: tru
 
 <img width="1518" height="717" alt="스크린샷 2026-10-10 오전 4 19 33" src="https://github.com/user-attachments/assets/d454b821-bfcd-4061-90cf-1b4cac7fefb5" />
 
+> 이미지의 "초기 JavaScript 실행 약 650ms"는 우리 1차 측정값이 아니라 마켓컬리 기준선의 TBT입니다. 우리 1차 TBT는 173ms였고(3-4절), 약 60ms는 개선 후 시뮬레이션 TBT입니다.
+
 ---
 
 ### 4단계. 마켓컬리 대비 최종 결과
